@@ -1,0 +1,61 @@
+void fastFeatureDetector(cv::Mat grayImg)
+{
+    std::vector<cv::KeyPoint> fastKeypoints;
+    int threshold = 10;
+    bool nonMaxSupression = true;
+
+    int numRetPoints = 750;
+    float tolerance = 0.1;
+
+    cv::FAST(grayImg, fastKeypoints, threshold, nonMaxSupression);
+
+    // homogenous spatial-keypoints-distribution
+    std::sort(fastKeypoints.begin(), fastKeypoints.end(), CompareKeypointResponse);
+    std::vector<cv::KeyPoint> distKeypoint = 
+            DistributedKeypoint(fastKeypoints, numRetPoints, tolerance, grayImg.cols, grayImg.rows);
+    
+    cv::Mat grayDistImgKeypoint;
+    cv::drawKeypoints(grayImg, distKeypoint, grayDistImgKeypoint);
+
+    cv::Mat grayImgKeypoint;
+    cv::drawKeypoints(grayImg, fastKeypoints, grayImgKeypoint);
+    
+    cv::imshow("Fast Dist detector", grayDistImgKeypoint);
+    cv::imshow("Fast detector", grayImgKeypoint);
+
+    cv::waitKey(0);
+}
+
+
+
+void harrisCornerDetector(cv::Mat grayImg)
+{
+    // Harris Corner Parameters
+    int BlockSize = 2;
+    int ApertureSize = 3;
+    double K = 0.04;
+    float Threshold = 100.0;
+    
+    cv::Mat harrisDst = cv::Mat::zeros(grayImg.size(), CV_32FC1);
+    cv::cornerHarris(grayImg, harrisDst, BlockSize, ApertureSize, K);
+
+    // Normalize the output of Harris Corner Detector
+    cv::Mat harrisDstNorm, harrisDstNormScaled;
+    cv::normalize(harrisDst, harrisDstNorm, 0, 255, cv::NORM_MINMAX, CV_32FC1);
+    cv::convertScaleAbs(harrisDstNorm, harrisDstNormScaled);
+
+    for(int rows = 0; rows < harrisDstNorm.rows; rows++)
+    {
+        for(int cols = 0; cols < harrisDstNorm.cols; cols++)
+        {
+            if(harrisDstNorm.at<float>(rows, cols) > Threshold)
+            {
+                cv::circle(grayImg, cv::Point(rows, cols), 5, cv::Scalar(0), 2, 8, 0);
+            }
+        }
+            
+    }
+
+    cv::imshow("Image Window", grayImg);
+    cv::waitKey(0);
+}

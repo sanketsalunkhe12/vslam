@@ -1,0 +1,19 @@
+<launch>
+
+    <!-- SSC ANMS Parameters -->
+    <param name="numRetPoints" type="int" value="200"/>  <!-- final distributed feature count -->
+    <param name="tolerance" type="double" value="0.1"/>
+
+    <!-- ORB Parameters -->
+    <param name="NumFeatures" type="int" value="5000"/>
+
+    <!-- FLANN Parameter -->
+    <param name="numBestMatch" type="int" value="50"/>
+
+    <!-- img path -->
+    <param name="imgPath" type="str" value="$(find vslam)/data/image.jpg"/>
+    <param name="imgPath2" type="str" value="$(find vslam)/data/image2.jpg"/>
+    
+    <node name="feature_detection" pkg="vslam" type="feature_detection_node" output="screen"/>
+
+</launch>
