@@ -37,9 +37,6 @@ class FeatureDetection
                 ROS_ERROR("Could not read the image");
             }
 
-            // harrisCornerDetector(grayImg);
-            // fastFeatureDetector(grayImg);
-
             KeypointDescriptor orbKeyDisImg1, orbKeyDisImg2;
 
             orbKeyDisImg1 = ORBFeatureDetector(grayImg);
@@ -52,15 +49,7 @@ class FeatureDetection
             cv::drawMatches(grayImg, orbKeyDisImg1.keypoint, grayImg2, orbKeyDisImg2.keypoint, 
                                 matches, matchImage, cv::Scalar::all(-1), cv::Scalar::all(-1)),
                                 std::vector< char >(), cv::DrawMatchesFlags::NOT_DRAW_SINGLE_POINTS;
-            cv::imshow("match image", matchImage);          
-            
-            // cv::Mat outputImg, outputImg2;
-
-            // cv::drawKeypoints(grayImg, orbKeyDisImg1.keypoint, outputImg);
-            // cv::imshow("Output image", outputImg);
-
-            // cv::drawKeypoints(grayImg2, orbKeyDisImg2.keypoint, outputImg2);
-            // cv::imshow("Output image2", outputImg2);
+            cv::imshow("match image", matchImage);       
 
             cv::waitKey(0);
         }
@@ -148,10 +137,8 @@ class FeatureDetection
             std::sort(matches.begin(), matches.end(), CompareMatchesDistance);
             
             for (int i=0; i<numBestMatch; i++)
-            {
-                ROS_INFO("best matches %f", matches[i].distance);
                 topMatches.push_back(matches[i]);
-            }
+
             return topMatches;
         }       
 
@@ -159,9 +146,9 @@ class FeatureDetection
 
 int main(int argc, char** argv)
 {
-    ros::init(argc, argv, "Feature Detection Node");
+    ros::init(argc, argv, "feature_detection_node");
     ros::NodeHandle nh;
     
-    FeatureDetection feature_detect(nh);
+    FeatureDetection feature_detect(nh); //without pointer nh
     return 0;
 }

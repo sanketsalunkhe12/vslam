@@ -1,0 +1,10 @@
+# SSC ANMS Parameter for feature homogenous distribution
+numRetPoints: 200
+tolerance: 0.1
+
+# ORB Parameters
+NumFeatures: 5000 #Initial features before ANMS
+
+# FLANN Descriptor Matching parameter
+numBestMatch: 50
+

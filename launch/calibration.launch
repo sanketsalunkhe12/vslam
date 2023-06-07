@@ -1,0 +1,12 @@
+<launch>
+
+    <param name="calibrPath" type="str" value="$(find vslam)/data/calibration"/>
+
+    <param name="boardCols" type="int" value="9"/>
+    <param name="boardRows" type="int" value="6"/>
+    <param name="squareSize" type="double" value="35.0"/>
+    <param name="numImg" type="int" value="20"/>
+
+    <node name="stereo_calibration" pkg="vslam" type="stereo_calibration_node" output="screen"/>
+
+</launch>
