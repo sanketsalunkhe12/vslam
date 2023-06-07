@@ -2,7 +2,6 @@
 #include <unistd.h>
 #include <filesystem>
 
-// #include "image_transport/image_transport.h"
 #include "message_filters/subscriber.h"
 #include "message_filters/time_synchronizer.h"
 #include "sensor_msgs/Image.h"
@@ -14,7 +13,6 @@
 #include "opencv2/highgui.hpp"
 #include "opencv2/opencv.hpp"
 
-#include "yaml-cpp/yaml.h"
 
 // Idea: can be done using video instead of saving photo.
 
@@ -30,9 +28,11 @@ class StereoCalibration
             nh->getParam("boardRows", boardRows);
             nh->getParam("squareSize", squareSize);
             nh->getParam("numImg", numImg);
+            nh->getParam("cam1Topic", cam1Topic);
+            nh->getParam("cam2Topic", cam2Topic);
 
-            left_img.subscribe(*nh, "/camera/infra1/image_rect_raw", 10);
-            right_img.subscribe(*nh, "/camera/infra2/image_rect_raw", 10);
+            left_img.subscribe(*nh, cam1Topic, 10);
+            right_img.subscribe(*nh, cam2Topic, 10);
 
             imgSync.reset(new message_filters::TimeSynchronizer<sensor_msgs::Image, sensor_msgs::Image>(left_img, right_img, 10));
             imgSync->registerCallback(boost::bind(&StereoCalibration::calibrationCallback, this, _1, _2));
@@ -57,6 +57,7 @@ class StereoCalibration
         std::string cvRightImgFrame = "Right Image";
 
         std::string calibrPath;
+        std::string cam1Topic, cam2Topic;
 
         // Calibration chekerboard parameter
         int boardCols;
