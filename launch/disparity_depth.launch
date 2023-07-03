@@ -1,0 +1,12 @@
+<launch>
+
+    <!-- Calibration parameter -->
+    <rosparam file="$(find vslam)/config/camera_calib_param.yaml"/>
+
+    <!-- Realsense node -->
+    <include file="$(find realsense2_camera)/launch/rs_d435.launch"/>
+
+    <!-- Disparaity depth node -->
+    <node name="stereo_disparity_depth" pkg="vslam" type="stereo_depth_disparity_node" output="screen"/>
+
+</launch>

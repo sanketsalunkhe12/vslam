@@ -1,0 +1,24 @@
+camera_name: 'd435i'
+
+# left_image_topic: '/race5/cam1/infra1/image_rect_raw' 
+left_image_topic: '/camera/infra1/image_rect_raw'
+# right_image_topic: '/race5/cam1/infra1/image_rect_raw' 
+right_image_topic: '/camera/infra2/image_rect_raw'
+# imu_topic: '/race5/cam1/imu' 
+imu_topic: '/camera/imu'
+
+left_intrinsic_param: [388.944926827298, 389.2499234269694, 322.1824469823606, 240.1638577687706] #[fx, fy, cx, cy]
+right_intrinsic_param: [388.4262804694367, 388.69622488905, 321.1546180445086, 240.5948781432846] #[fx, fy, cx, cy]
+left_distortion_param: [0.004868396818625938, -0.01018040557762843, -0.0003111926356317828, 0.0003824964345598847, 0.002094903624447232]
+right_distortion_param: [-0.002937272730431869, 0.01234845151142888, -0.0004506363000301029, 0.000489122997746363, -0.01267538634592998]
+
+# ORB Parameters
+NumFeatures: 5000 #Initial features before ANMS
+
+# SSC ANMS Parameter for feature homogenous distribution
+numRetPoints: 100
+tolerance: 0.01
+
+
+# FLANN Descriptor Matching parameter
+numBestMatch: 50
