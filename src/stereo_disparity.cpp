@@ -13,6 +13,10 @@
 #include "opencv2/highgui.hpp"
 #include "opencv2/opencv.hpp"
 
+#include "opencv2/calib3d/calib3d.hpp"
+#include "opencv2/calib3d.hpp"
+#include "opencv2/calib3d/calib3d_c.h"
+
 class StereoDepthDisparity
 {
     public:
@@ -24,11 +28,27 @@ class StereoDepthDisparity
             nh->getParam("right_image_topic", rightImageTopic);
             
             nh->getParam("camera_name", cameraName);
-            nh->getParam("left_intrinsic_param", leftCameraIntrinsic);
-            nh->getParam("right_intrinsic_param", rightCameraIntrinsic);
-            nh->getParam("left_distortion_param", leftCameraDistortion);
-            nh->getParam("right_distortion_param", rightCameraDistortion);
 
+            nh->getParam("left_camera/intrinsics", leftCameraIntrinsic);
+            nh->getParam("right_camera/intrinsics", rightCameraIntrinsic);
+
+            nh->getParam("left_camera/distortion", leftCameraDistortion);
+            nh->getParam("right_camera/distortion", rightCameraDistortion);
+
+            // camera transformation matrix
+            nh->getParam("right_camera/T_left_right", transformParam);
+            
+            for(int i=0; i<4; i++)
+            {
+                for(int j=0; j<4; j++)
+                {
+                    T_left_right.at<double>(i,j) = static_cast<double>(transformParam[i][j]);
+                }
+            }
+            R = T_left_right.colRange(0,3).rowRange(0,3);
+            t = T_left_right.col(3).rowRange(0,3);
+
+          
             // creating message filter time sync callback function
             leftImageSub.subscribe(*nh, leftImageTopic, 10);
             rightImageSub.subscribe(*nh, rightImageTopic, 10);
@@ -56,7 +76,41 @@ class StereoDepthDisparity
             // imshow windows
             cv::namedWindow(cvLeftImgFrame);
             cv::namedWindow(cvRightImgFrame);
+            cv::namedWindow(disparityImgFrame);
 
+            // creating stereo BM object
+            nh->getParam("min_disparity", minDisparity);
+            nh->getParam("num_disparity", numDisparities);
+            nh->getParam("block_size", blockSize);
+            nh->getParam("p1", p1);
+            nh->getParam("p2", p2);
+            nh->getParam("disp_12_max_diff", disp12MaxDiff);
+            nh->getParam("pre_filter_cap", preFilterCap);
+            nh->getParam("uniqueness_ratio", uniquenessRatio);
+            nh->getParam("speckle_window_size", speckleWindowSize);
+            nh->getParam("speckle_range", speckleRange);
+
+            nh->getParam("left_camera/infra_width", imgWidth);
+            nh->getParam("left_camera/infra_height", imgHeight);
+
+            
+            // getting stereo rectification params
+            cv::stereoRectify(leftCameraCalibMat, leftDistortMat, rightCameraCalibMat, rightDistortMat, 
+                            cv::Size(imgWidth, imgHeight), R, t, rectLeft, rectRight, projLeft, projRight,
+                            Q, CV_CALIB_ZERO_DISPARITY, 0);
+
+            // create a recitify mapping
+            cv::initUndistortRectifyMap(leftCameraCalibMat, leftDistortMat, rectLeft, projLeft, 
+                                        cv::Size(imgWidth, imgHeight), CV_16SC2, rectifyMap[0][0], rectifyMap[0][1]);
+            
+            cv::initUndistortRectifyMap(rightCameraCalibMat, rightDistortMat, rectRight, projRight,
+                                        cv::Size(imgWidth, imgHeight), CV_16SC2, rectifyMap[1][0], rectifyMap[1][1]);
+            
+            // creating stereo object
+            stereoSGBM_ = cv::StereoSGBM::create(minDisparity, 
+                                        numDisparities, blockSize, p1, p2, disp12MaxDiff,
+                                        preFilterCap, uniquenessRatio, speckleWindowSize,
+                                        speckleRange, false);
         }
 
         ~StereoDepthDisparity()
@@ -81,7 +135,7 @@ class StereoDepthDisparity
         std::shared_ptr<message_filters::TimeSynchronizer<sensor_msgs::Image, 
                                                 sensor_msgs::Image>> imgSync;
 
-        cv::Mat leftCameraCalibMat, rightCameraCalibMat, leftDistortMat, rightDistortMat;
+        cv::Mat leftCameraCalibMat, rightCameraCalibMat, leftDistortMat, rightDistortMat, R, t;
         
         // Undistorted images
         cv::Mat undistortLeftImg, undistortRightImg;
@@ -89,7 +143,24 @@ class StereoDepthDisparity
         // Image frame
         std::string cvLeftImgFrame = "Left Image";
         std::string cvRightImgFrame = "Right Image";
-              
+
+        std::string disparityImgFrame = "Disparity Image";
+
+        // stereo disparity parameters
+        cv::Ptr<cv::StereoSGBM> stereoSGBM_;
+        int minDisparity, numDisparities, blockSize, p1, p2, disp12MaxDiff, preFilterCap, 
+            uniquenessRatio, speckleWindowSize, speckleRange;
+        int imgWidth, imgHeight;
+        
+        // rectification
+        cv::Mat rectLeft, rectRight, projLeft, projRight, Q; //3*3 rectification transform, 3*4 projection matrix, 4*4 disparity-depth matrix 
+        cv::Mat dispImg, dispImg_;  
+        cv::Mat T_left_right = cv::Mat::eye(4,4,CV_64FC1);    
+        XmlRpc::XmlRpcValue transformParam;
+        cv::Mat rectifyMap[2][2];
+
+        cv::Mat rectifiedLeft, rectifiedRight;
+        
         
         void stereoSyncCallback(const sensor_msgs::ImageConstPtr& leftImage, 
                                 const sensor_msgs::ImageConstPtr& rightImage)
@@ -108,15 +179,33 @@ class StereoDepthDisparity
                 return;
             }
 
-            undistortImage(pLeftImg, pRightImg);
+            // when stereoRecitification happen no need to perform again undistortion of images
+            // undistortImage(pLeftImg, pRightImg);
+
+            // perform stereo rectification
+            cv::remap(pLeftImg->image, rectifiedLeft, rectifyMap[0][0], rectifyMap[0][1], cv::INTER_LINEAR);
+            cv::remap(pRightImg->image, rectifiedRight, rectifyMap[1][0], rectifyMap[1][1], cv::INTER_LINEAR);
+
+            // if want we can perform gaussian blur
+                        
+            // compute disparity
+            stereoSGBM_->compute(rectifiedLeft, rectifiedRight, dispImg_);
+            cv::normalize(dispImg_, dispImg, 0, 255, cv::NORM_MINMAX, CV_8UC1);
             
-            cv::imshow(cvLeftImgFrame, undistortLeftImg);
-            cv::imshow(cvRightImgFrame, undistortRightImg);
+            cv::imshow(cvLeftImgFrame, rectifiedLeft);
+            cv::imshow(cvRightImgFrame, rectifiedRight);
+                    
+            cv::imshow(disparityImgFrame, dispImg);
 
             cv::waitKey(1);
         }
    
 
+        void rectifyStereo()
+        {
+
+        }
+        
         void undistortImage(cv_bridge::CvImageConstPtr pLeftImg, cv_bridge::CvImageConstPtr pRightImg)
         {
             cv::undistort(pLeftImg->image, undistortLeftImg, leftCameraCalibMat, leftDistortMat);

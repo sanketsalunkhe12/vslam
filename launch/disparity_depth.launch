@@ -1,7 +1,7 @@
 <launch>
 
     <!-- Calibration parameter -->
-    <rosparam file="$(find vslam)/config/camera_calib_param.yaml"/>
+    <rosparam file="$(find vslam)/config/visual_slam_param.yaml"/>
 
     <!-- Realsense node -->
     <include file="$(find realsense2_camera)/launch/rs_d435.launch"/>

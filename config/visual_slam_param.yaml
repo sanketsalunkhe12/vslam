@@ -1,16 +1,43 @@
 camera_name: 'd435i'
 
-# left_image_topic: '/race5/cam1/infra1/image_rect_raw' 
 left_image_topic: '/camera/infra1/image_rect_raw'
-# right_image_topic: '/race5/cam1/infra1/image_rect_raw' 
 right_image_topic: '/camera/infra2/image_rect_raw'
-# imu_topic: '/race5/cam1/imu' 
 imu_topic: '/camera/imu'
+
+# camera parameters
+left_camera:
+  intrinsics: [388.944926827298, 389.2499234269694, 322.1824469823606, 240.1638577687706] #[fx, fy, cx, cy]
+  distortion: [0.004868396818625938, -0.01018040557762843, -0.0003111926356317828, 0.0003824964345598847, 0.002094903624447232]
+  infra_width: 640
+  infra_height: 480
+
+right_camera:
+  intrinsics: [388.4262804694367, 388.69622488905, 321.1546180445086, 240.5948781432846] #[fx, fy, cx, cy]
+  distortion: [-0.002937272730431869, 0.01234845151142888, -0.0004506363000301029, 0.000489122997746363, -0.01267538634592998]
+  T_left_right:
+    - [1.0, 0.0, 0.0, 0.05002772119355333]
+    - [0.0, 1.0, 0.0, 4.1225333788413073e-05]
+    - [0.0, 0.0, 1.0, 0.00023574091884769573]
+    - [0.0, 0.0, 0.0, 1.0] 
 
 left_intrinsic_param: [388.944926827298, 389.2499234269694, 322.1824469823606, 240.1638577687706] #[fx, fy, cx, cy]
 right_intrinsic_param: [388.4262804694367, 388.69622488905, 321.1546180445086, 240.5948781432846] #[fx, fy, cx, cy]
 left_distortion_param: [0.004868396818625938, -0.01018040557762843, -0.0003111926356317828, 0.0003824964345598847, 0.002094903624447232]
 right_distortion_param: [-0.002937272730431869, 0.01234845151142888, -0.0004506363000301029, 0.000489122997746363, -0.01267538634592998]
+
+# Stereo disparity parameters
+# https://docs.opencv.org/4.x/d2/d85/classcv_1_1StereoSGBM.html
+min_disparity: 0
+num_disparity: 32   #must be multiple of 16
+block_size: 9       #must be odd number >=1 
+p1: 600
+p2: 2400               #p2>p1
+disp_12_max_diff: 20
+pre_filter_cap: 10
+uniqueness_ratio: 15
+speckle_window_size: 200
+speckle_range: 1
+
 
 # ORB Parameters
 NumFeatures: 5000 #Initial features before ANMS
