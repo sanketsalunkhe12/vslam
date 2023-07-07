@@ -17,10 +17,10 @@
 #include "opencv2/calib3d.hpp"
 #include "opencv2/calib3d/calib3d_c.h"
 
-class StereoDepthDisparity
+class StereoDisparity
 {
     public:
-        StereoDepthDisparity(ros::NodeHandle *nh)
+        StereoDisparity(ros::NodeHandle *nh)
         {
             ROS_INFO("Starting Stereo Depth and Disparity Node");
 
@@ -55,7 +55,7 @@ class StereoDepthDisparity
 
             imgSync.reset(new message_filters::TimeSynchronizer<sensor_msgs::Image, 
                             sensor_msgs::Image>(leftImageSub, rightImageSub, 10));
-            imgSync->registerCallback(boost::bind(&StereoDepthDisparity::stereoSyncCallback, 
+            imgSync->registerCallback(boost::bind(&StereoDisparity::stereoSyncCallback, 
                                             this, _1, _2));
 
             // Camera calibration matrix
@@ -113,7 +113,7 @@ class StereoDepthDisparity
                                         speckleRange, false);
         }
 
-        ~StereoDepthDisparity()
+        ~StereoDisparity()
         {
             cv::destroyAllWindows();
         }
@@ -179,8 +179,8 @@ class StereoDepthDisparity
                 return;
             }
 
-            // when stereoRecitification happen no need to perform again undistortion of images
-            // undistortImage(pLeftImg, pRightImg);
+            // stereo rectification only perform a stereo transform rectification
+            // we still need to perform intrinsic undistortion before feeding into this
 
             // perform stereo rectification
             cv::remap(pLeftImg->image, rectifiedLeft, rectifyMap[0][0], rectifyMap[0][1], cv::INTER_LINEAR);
@@ -221,7 +221,7 @@ int main(int argc, char** argv)
     ros::init(argc, argv, "Stereo_depth_and_disparity_node");
     ros::NodeHandle nh;
 
-    StereoDepthDisparity stereo_depth_disparity(&nh);
+    StereoDisparity stereo_depth_disparity(&nh);
     ros::spin();
 
     return 0;

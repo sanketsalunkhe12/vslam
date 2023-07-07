@@ -14,7 +14,6 @@
 #include "opencv2/opencv.hpp"
 
 #include "vslam/ros_manager.hpp"
-// #include "vslam/feature_detection.hpp"
 
 class VisualSLAM
 {

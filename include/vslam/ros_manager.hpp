@@ -17,6 +17,7 @@
 #include "opencv2/opencv.hpp"
 
 class FeatureDetection;
+class StereoDisparity;
 
 class ROSManager
 {
@@ -36,6 +37,8 @@ class ROSManager
 
     private:
         FeatureDetection* featureDetection;
+        StereoDisparity* stereoDisparity;
+
         std::string leftImageTopic;
         std::string rightImageTopic;
         std::string imuTopic;

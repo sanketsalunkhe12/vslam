@@ -3,7 +3,7 @@
 
 #include "vslam/ros_manager.hpp"
 #include "vslam/feature_detection.hpp"
-#include "vslam/utils.hpp"
+#include "vslam/stereo.hpp"
 
 ROSManager::ROSManager(ros::NodeHandle *nh)
 {
@@ -34,6 +34,8 @@ ROSManager::ROSManager(ros::NodeHandle *nh)
     imuSub = nh->subscribe(imuTopic, 100, &ROSManager::imuCallback, this);
 
     featureDetection = new FeatureDetection(nh, this);
+
+    stereoDisparity = new StereoDisparity(nh);
     
         
     // imshow windows
