@@ -35,7 +35,8 @@ list(APPEND third_party_lib
 list(APPEND LIBRARY_SOURCES 
             src/ros_manager.cpp
             src/feature_detection.cpp
-            src/stereo.cpp)
+            src/stereo.cpp
+            src/camera_calib.cpp)
 
 add_library(vslam_libraries SHARED ${LIBRARY_SOURCES})
 target_link_libraries(vslam_libraries ${third_party_lib})

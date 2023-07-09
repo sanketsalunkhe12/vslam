@@ -1,3 +1,4 @@
+#include "ros/ros.h"
 #include "vslam/stereo.hpp"
 
 StereoDisparity::StereoDisparity(ros::NodeHandle *nh)

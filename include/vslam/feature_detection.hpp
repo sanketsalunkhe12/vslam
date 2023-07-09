@@ -21,7 +21,7 @@ class ROSManager;
 class FeatureDetection
 {
     public:
-        FeatureDetection(ros::NodeHandle *nh, ROSManager* rosManager);
+        FeatureDetection(ros::NodeHandle *nh);
 
         struct KeypointDescriptor
         {
@@ -39,12 +39,6 @@ class FeatureDetection
 
         // ORB Parameters
         int NumFeatures;
-
-        cv::Mat leftCameraCalibMat, rightCameraCalibMat, 
-                leftDistortMat, rightDistortMat;
-        
-        // Undistorted images
-        cv::Mat undistortLeftImg, undistortRightImg;
 
         static bool CompareKeypointResponse(const cv::KeyPoint& kp1, const cv::KeyPoint& kp2)
         {

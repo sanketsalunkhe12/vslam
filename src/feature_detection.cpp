@@ -2,11 +2,11 @@
 #include "ros/console.h"
 
 #include "vslam/feature_detection.hpp"
-#include "vslam/ros_manager.hpp"
+// #include "vslam/ros_manager.hpp"
 #include "vslam/ssc_anms.hpp"
 
 
-FeatureDetection::FeatureDetection(ros::NodeHandle *nh, ROSManager* rosManager)
+FeatureDetection::FeatureDetection(ros::NodeHandle *nh)//, ROSManager* rosManager)
 {
     ROS_INFO("Initialize feature detection");
 
@@ -16,11 +16,6 @@ FeatureDetection::FeatureDetection(ros::NodeHandle *nh, ROSManager* rosManager)
     // nh->getParam("/numBestMatch", numBestMatch);
 
     KeypointDescriptor orbKeyDisImg1, orbKeyDisImg2;
-    
-    cv::Mat leftCameraCalibMat = rosManager->getLeftCameraCalib();
-    cv::Mat rightCameraCalibMat = rosManager->getRightCameraCalib();
-    cv::Mat leftDistortMat = rosManager->getLeftCameraDistort();
-    cv::Mat rightDistortMat = rosManager->getRightCameraDistord();
 
 }
 
@@ -28,10 +23,6 @@ FeatureDetection::FeatureDetection(ros::NodeHandle *nh, ROSManager* rosManager)
 // FeatureDetection::KeypointDescriptor 
 void FeatureDetection::ORBFeatureDetector(cv_bridge::CvImageConstPtr pLeftImg)
 {
-    // cv::undistort(pLeftImg->image, undistortLeftImg, leftCameraCalibMat, leftDistortMat);
-
-    
-
     // ORB is both Feature detector and descriptor
     cv::Ptr<cv::ORB> orbDetector = cv::ORB::create(NumFeatures);
     std::vector<cv::KeyPoint> orbKeypoint; 
@@ -46,9 +37,8 @@ void FeatureDetection::ORBFeatureDetector(cv_bridge::CvImageConstPtr pLeftImg)
     std::vector<cv::KeyPoint> distKeypoint = 
             DistributedKeypoint(orbKeypoint, numRetPoints, tolerance, pLeftImg->image.cols, pLeftImg->image.rows);
 
-    std::string sizeStr = std::to_string(distKeypoint.size());
-    ROS_INFO("Size of the vector: %s", sizeStr.c_str());
-
+    // std::string sizeStr = std::to_string(distKeypoint.size());
+    // ROS_INFO("Size of the vector: %s", sizeStr.c_str());
     
     //compute descriptor
     cv::Mat orbDescriptor;
@@ -60,9 +50,4 @@ void FeatureDetection::ORBFeatureDetector(cv_bridge::CvImageConstPtr pLeftImg)
     cv::imshow("ORB detector", orbOutputImg);
     cv::waitKey(1);
 
-    // KeypointDescriptor orbKeyDes;
-    // orbKeyDes.keypoint = distKeypoint;
-    // orbKeyDes.descriptor = orbDescriptor;
-
-    // return orbKeyDes;
 }

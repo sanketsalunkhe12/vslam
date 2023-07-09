@@ -18,6 +18,7 @@
 
 class FeatureDetection;
 class StereoDisparity;
+class CameraCalibration;
 
 class ROSManager
 {
@@ -26,28 +27,16 @@ class ROSManager
 
         ~ROSManager()
         {
-            // delete featureDetection;
             cv::destroyAllWindows();
         }
-
-        cv::Mat getLeftCameraCalib();
-        cv::Mat getRightCameraCalib();
-        cv::Mat getLeftCameraDistort();
-        cv::Mat getRightCameraDistord();
 
     private:
         FeatureDetection* featureDetection;
         StereoDisparity* stereoDisparity;
+        CameraCalibration* cameraCalibration;
 
-        std::string leftImageTopic;
-        std::string rightImageTopic;
-        std::string imuTopic;
-        
         std::string cameraName;
-        std::vector<double> leftCameraIntrinsic;
-        std::vector<double> rightCameraIntrinsic;
-        std::vector<double> leftCameraDistortion;
-        std::vector<double> rightCameraDistortion;
+
 
         // Sync Camera images
         message_filters::Subscriber<sensor_msgs::Image> leftImageSub;
@@ -58,10 +47,6 @@ class ROSManager
 
         cv_bridge::CvImageConstPtr pLeftImg, pRightImg;
 
-        // Undistortion
-        cv::Mat leftCameraCalibMat, rightCameraCalibMat, 
-                leftDistortMat, rightDistortMat;
-                
         // Image frame
         std::string cvLeftImgFrame = "Left Image";
         std::string cvRightImgFrame = "Right Image";
@@ -75,8 +60,6 @@ class ROSManager
 
         void imuCallback(const sensor_msgs::ImuConstPtr& imuMessage);
 
-
-        void undistortImage(cv_bridge::CvImageConstPtr pLeftImg, cv_bridge::CvImageConstPtr pRightImg);
 
 };
 
