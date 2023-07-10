@@ -16,7 +16,7 @@ class StereoDisparity
     public:
         StereoDisparity(ros::NodeHandle *nh);
 
-        void getRectifiedStereo(cv_bridge::CvImageConstPtr pLeftImg, cv_bridge::CvImageConstPtr pRightImg,
+        void getRectifiedStereo(cv::Mat& undistortLeftImg, cv::Mat& undistortRightImg,
                         cv::Mat& rectifiedLeft, cv::Mat& rectifiedRight);
 
         void getDisparityMap(cv::Mat& rectifiedLeft, cv::Mat& rectifiedRight, 

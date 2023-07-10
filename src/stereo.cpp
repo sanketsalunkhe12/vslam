@@ -91,12 +91,12 @@ StereoDisparity::StereoDisparity(ros::NodeHandle *nh)
                                 speckleRange, false);
 }
 
-void StereoDisparity::getRectifiedStereo(cv_bridge::CvImageConstPtr pLeftImg, cv_bridge::CvImageConstPtr pRightImg, 
+void StereoDisparity::getRectifiedStereo(cv::Mat& undistortLeftImg, cv::Mat& undistortRightImg, 
                         cv::Mat& rectifiedLeft, cv::Mat& rectifiedRight)
 {
     // perform stereo rectification
-    cv::remap(pLeftImg->image, rectifiedLeft, rectifyMap[0][0], rectifyMap[0][1], cv::INTER_LINEAR);
-    cv::remap(pRightImg->image, rectifiedRight, rectifyMap[1][0], rectifyMap[1][1], cv::INTER_LINEAR);
+    cv::remap(undistortLeftImg, rectifiedLeft, rectifyMap[0][0], rectifyMap[0][1], cv::INTER_LINEAR);
+    cv::remap(undistortRightImg, rectifiedRight, rectifyMap[1][0], rectifyMap[1][1], cv::INTER_LINEAR);
 }
 
 void StereoDisparity::getDisparityMap(cv::Mat& rectifiedLeft, cv::Mat& rectifiedRight, 

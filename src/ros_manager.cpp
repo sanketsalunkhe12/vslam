@@ -1,6 +1,8 @@
 #include "ros/ros.h"
 #include "ros/console.h"
 
+#include <thread>
+
 #include "vslam/ros_manager.hpp"
 #include "vslam/feature_detection.hpp"
 #include "vslam/stereo.hpp"
@@ -57,8 +59,29 @@ void ROSManager::stereoSyncCallback(const sensor_msgs::ImageConstPtr& leftImage,
         ROS_ERROR("cv_bridge exception: %s", e.what());
         return;
     }
+
+    ros::Time startTime = ros::Time::now();
     
-    featureDetection->ORBFeatureDetector(pLeftImg);
+    // getting error regarding static function and threading
+    // so check it afterwords
+    // std::thread calibThrL(cameraCalibration->getCalibratedLeftImg, pLeftImg, undistortLeftImg);
+    // std::thread calibThrR(cameraCalibration->getCalibratedLeftImg, pRightImg, undistortRightImg);
+    
+    cameraCalibration->getCalibratedLeftImg(pLeftImg, undistortLeftImg);
+    cameraCalibration->getCalibratedLeftImg(pRightImg, undistortRightImg);
+
+    stereoDisparity->getRectifiedStereo(undistortLeftImg, undistortRightImg, 
+                                        rectifiedLeft, rectifiedRight);
+
+    stereoDisparity->getDisparityMap(rectifiedLeft, rectifiedRight, disparityMap);
+    
+    featureDetection->ORBFeatureDetector(rectifiedLeft);
+
+    ros::Time endTime = ros::Time::now();
+
+    ros::Duration duration = endTime - startTime;
+
+    ROS_ERROR("The duration is %f", duration.toSec());
     
 }
 

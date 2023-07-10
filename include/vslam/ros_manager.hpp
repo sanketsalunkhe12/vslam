@@ -37,6 +37,9 @@ class ROSManager
 
         std::string cameraName;
 
+        cv::Mat undistortLeftImg, undistortRightImg;
+        cv::Mat rectifiedLeft, rectifiedRight;
+        cv::Mat disparityMap;
 
         // Sync Camera images
         message_filters::Subscriber<sensor_msgs::Image> leftImageSub;

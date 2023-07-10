@@ -30,7 +30,7 @@ class FeatureDetection
         };
         
         // KeypointDescriptor 
-        void ORBFeatureDetector(cv_bridge::CvImageConstPtr pLeftImg);
+        void ORBFeatureDetector(cv::Mat& undistortLeftImg);
 
     private:
         // SSC ANMS Parameters
