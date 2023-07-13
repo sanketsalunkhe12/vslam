@@ -1,3 +1,6 @@
+#ifndef STEREO_HPP
+#define STEREO_HPP
+
 #include "ros/ros.h"
 
 #include "cv_bridge/cv_bridge.h"
@@ -31,3 +34,5 @@ class StereoDisparity
         cv::Ptr<cv::StereoSGBM> stereoSGBM_;
 
 };
+
+#endif

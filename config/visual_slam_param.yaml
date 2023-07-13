@@ -1,5 +1,9 @@
 camera_name: 'd435i'
 
+# left_image_topic: '/race11/cam1/infra1/image_rect_raw'
+# right_image_topic: '/race11/cam1/infra2/image_rect_raw'
+# imu_topic: '/race11/cam1/imu'
+
 left_image_topic: '/camera/infra1/image_rect_raw'
 right_image_topic: '/camera/infra2/image_rect_raw'
 imu_topic: '/camera/imu'
@@ -38,14 +42,22 @@ uniqueness_ratio: 15
 speckle_window_size: 200
 speckle_range: 1
 
-
 # ORB Parameters
 NumFeatures: 5000 #Initial features before ANMS
 
 # SSC ANMS Parameter for feature homogenous distribution
-numRetPoints: 100
-tolerance: 0.01
-
+numRetPoints: 70
+tolerance: 0.5
 
 # FLANN Descriptor Matching parameter
 numBestMatch: 50
+
+# klt tracker parameter
+klt_window_width: 15
+klt_window_hight: 15
+max_pyramid_level: 2
+min_tracked_features: 16
+
+# KLT RNASAC parameters
+distance_threshold: 3.0
+confidence: 0.90

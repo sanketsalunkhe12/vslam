@@ -2,11 +2,13 @@
 #include "ros/console.h"
 
 #include <thread>
+#include <future>
 
 #include "vslam/ros_manager.hpp"
 #include "vslam/feature_detection.hpp"
 #include "vslam/stereo.hpp"
 #include "vslam/camera_calib.hpp"
+#include "vslam/feature_tracking.hpp"
 
 ROSManager::ROSManager(ros::NodeHandle *nh)
 {
@@ -29,7 +31,7 @@ ROSManager::ROSManager(ros::NodeHandle *nh)
     rightImageSub.subscribe(*nh, rightImageTopic, 10);
 
     imgSync.reset(new message_filters::TimeSynchronizer<sensor_msgs::Image, 
-                    sensor_msgs::Image>(leftImageSub, rightImageSub, 10));
+                    sensor_msgs::Image>(leftImageSub, rightImageSub, 1));
     imgSync->registerCallback(boost::bind(&ROSManager::stereoSyncCallback, 
                                     this, _1, _2));
 
@@ -41,6 +43,8 @@ ROSManager::ROSManager(ros::NodeHandle *nh)
     stereoDisparity = new StereoDisparity(nh);
 
     cameraCalibration = new CameraCalibration(nh);
+
+    featureTracking = new FeatureTracking(nh);
 
 }
 
@@ -60,28 +64,41 @@ void ROSManager::stereoSyncCallback(const sensor_msgs::ImageConstPtr& leftImage,
         return;
     }
 
-    ros::Time startTime = ros::Time::now();
+    // ros::Time startTime = ros::Time::now();
     
-    // getting error regarding static function and threading
-    // so check it afterwords
-    // std::thread calibThrL(cameraCalibration->getCalibratedLeftImg, pLeftImg, undistortLeftImg);
-    // std::thread calibThrR(cameraCalibration->getCalibratedLeftImg, pRightImg, undistortRightImg);
+    auto calibThrL = std::async(std::launch::async, &CameraCalibration::getCalibratedLeftImg,
+                                cameraCalibration, pLeftImg, std::ref(undistortLeftImg));
+
+    auto calibThrR = std::async(std::launch::async, &CameraCalibration::getCalibratedRightImg,
+                                cameraCalibration, pRightImg, std::ref(undistortRightImg));
+
+    calibThrL.wait();
+    calibThrR.wait();
     
-    cameraCalibration->getCalibratedLeftImg(pLeftImg, undistortLeftImg);
-    cameraCalibration->getCalibratedLeftImg(pRightImg, undistortRightImg);
+    // cameraCalibration->getCalibratedLeftImg(pLeftImg, undistortLeftImg);
+    // cameraCalibration->getCalibratedLeftImg(pRightImg, undistortRightImg);
 
     stereoDisparity->getRectifiedStereo(undistortLeftImg, undistortRightImg, 
                                         rectifiedLeft, rectifiedRight);
 
-    stereoDisparity->getDisparityMap(rectifiedLeft, rectifiedRight, disparityMap);
     
-    featureDetection->ORBFeatureDetector(rectifiedLeft);
+    auto dispMapThr = std::async(std::launch::async, &StereoDisparity::getDisparityMap, stereoDisparity, 
+                            std::ref(rectifiedLeft), std::ref(rectifiedRight), std::ref(disparityMap));
 
-    ros::Time endTime = ros::Time::now();
+    auto featDectThr = std::async(std::launch::async, &FeatureDetection::ORBFeatureDetector, featureDetection, 
+                            std::ref(rectifiedLeft), std::ref(distKeypoint));
 
-    ros::Duration duration = endTime - startTime;
+    dispMapThr.wait();
+    featDectThr.wait();
+    
+    // stereoDisparity->getDisparityMap(rectifiedLeft, rectifiedRight, disparityMap);
+    // featureDetection->ORBFeatureDetector(rectifiedLeft, distKeypoint);
 
-    ROS_ERROR("The duration is %f", duration.toSec());
+    featureTracking->trackFeatures(rectifiedLeft, distKeypoint);
+
+    // ros::Time endTime = ros::Time::now();
+    // ros::Duration duration = endTime - startTime;
+    // ROS_ERROR("The duration is %f", duration.toSec());
     
 }
 

@@ -21,7 +21,8 @@ FeatureDetection::FeatureDetection(ros::NodeHandle *nh)//, ROSManager* rosManage
 
 
 // FeatureDetection::KeypointDescriptor 
-void FeatureDetection::ORBFeatureDetector(cv::Mat& undistortLeftImg)
+void FeatureDetection::ORBFeatureDetector(cv::Mat& undistortLeftImg, 
+                                    std::vector<cv::KeyPoint>& distKeypoint)
 {
     // ORB is both Feature detector and descriptor
     cv::Ptr<cv::ORB> orbDetector = cv::ORB::create(NumFeatures);
@@ -34,20 +35,19 @@ void FeatureDetection::ORBFeatureDetector(cv::Mat& undistortLeftImg)
     std::sort(orbKeypoint.begin(), orbKeypoint.end(), CompareKeypointResponse);
 
     // from ssc_anms.hpp
-    std::vector<cv::KeyPoint> distKeypoint = 
-            DistributedKeypoint(orbKeypoint, numRetPoints, tolerance, undistortLeftImg.cols, undistortLeftImg.rows);
+    distKeypoint = DistributedKeypoint(orbKeypoint, numRetPoints, 
+                    tolerance, undistortLeftImg.cols, undistortLeftImg.rows);
 
     // std::string sizeStr = std::to_string(distKeypoint.size());
     // ROS_INFO("Size of the vector: %s", sizeStr.c_str());
     
-    //compute descriptor
-    cv::Mat orbDescriptor;
-    orbDetector->compute(undistortLeftImg, distKeypoint, orbDescriptor); 
+    // //compute descriptor
+    // cv::Mat orbDescriptor;
+    // orbDetector->compute(undistortLeftImg, distKeypoint, orbDescriptor); 
     
-    cv::Mat orbOutputImg;
-    cv::drawKeypoints(undistortLeftImg, distKeypoint, orbOutputImg);
+    // cv::Mat orbOutputImg;
+    // cv::drawKeypoints(undistortLeftImg, distKeypoint, orbOutputImg);
 
-    cv::imshow("ORB detector", orbOutputImg);
-    cv::waitKey(1);
-
+    // cv::imshow("ORB detector", orbOutputImg);
+    // cv::waitKey(1);
 }

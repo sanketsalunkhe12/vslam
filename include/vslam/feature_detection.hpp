@@ -30,7 +30,7 @@ class FeatureDetection
         };
         
         // KeypointDescriptor 
-        void ORBFeatureDetector(cv::Mat& undistortLeftImg);
+        void ORBFeatureDetector(cv::Mat& undistortLeftImg, std::vector<cv::KeyPoint>& distKeypoint);
 
     private:
         // SSC ANMS Parameters

@@ -19,6 +19,7 @@
 class FeatureDetection;
 class StereoDisparity;
 class CameraCalibration;
+class FeatureTracking;
 
 class ROSManager
 {
@@ -34,12 +35,14 @@ class ROSManager
         FeatureDetection* featureDetection;
         StereoDisparity* stereoDisparity;
         CameraCalibration* cameraCalibration;
+        FeatureTracking* featureTracking;
 
         std::string cameraName;
 
         cv::Mat undistortLeftImg, undistortRightImg;
         cv::Mat rectifiedLeft, rectifiedRight;
         cv::Mat disparityMap;
+        std::vector<cv::KeyPoint> distKeypoint;
 
         // Sync Camera images
         message_filters::Subscriber<sensor_msgs::Image> leftImageSub;
