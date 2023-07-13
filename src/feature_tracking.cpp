@@ -24,12 +24,8 @@ void FeatureTracking::trackFeatures(cv::Mat& currentImg,
         cv::Size winSize(winWidth, winHight);
 
         std::vector<cv::Point2f> currentFrameKeyPts;
-
         std::vector<cv::Point2f> prevFrameTrackedPts, currentFrameTrackedPts;
-        
-        std::vector<cv::Point2f> trackedKeyPoints;
         std::vector<cv::Point2f> prevFrameInlier, currentFrameInlier;
-        
         std::vector<uchar> maskRANSAC;
         
         if(prevFrameKeyPts.size() > minFeatTrack)
@@ -72,28 +68,15 @@ void FeatureTracking::trackFeatures(cv::Mat& currentImg,
         }
         
         // selecting good points     
-
         cv::Mat orbOutputImg;
         cv::drawKeypoints(prevImg, distKeypoint, prevImg);
 
-        // ROS_INFO("size of tracked points %d", trackedKeyPoints.size());
-
         cv::imshow("Feature tracking", prevImg);
-        
         cv::waitKey(1);
-        
-        // int key = cv::waitKey();
-
-        // while(key!=27)
-        // {
-        //     break;
-        // }
 
         prevImg = currentImg.clone();
         prevFrameFeatures = distKeypoint;
         cv::KeyPoint::convert(prevFrameFeatures, prevFrameKeyPts, prevKeyPtsIndex);
-
-        // prevFrameKeyPts = trackedKeyPoints;
     }
     else
     {
