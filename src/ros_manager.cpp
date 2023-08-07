@@ -10,6 +10,8 @@
 #include "vslam/camera_calib.hpp"
 #include "vslam/feature_tracking.hpp"
 
+#include "vslam/visual_slam_manager.hpp"
+
 ROSManager::ROSManager(ros::NodeHandle *nh)
 {
     ROS_INFO("Initialize ROS Manager");
@@ -105,7 +107,9 @@ void ROSManager::stereoSyncCallback(const sensor_msgs::ImageConstPtr& leftImage,
 
 void ROSManager::imuCallback(const sensor_msgs::ImuConstPtr& imuMessage)
 {
-    // ROS_INFO("getting IMU messages");
+    // ROS_INFO("IMU %f", imuMessage->angular_velocity.x);
+
+
 }
 
 

@@ -15,6 +15,36 @@ FeatureTracking::FeatureTracking(ros::NodeHandle *nh)
     nh->getParam("confidence",confidence);
 }
 
+
+void FeatureTracking::stereoInitialize()
+{
+    ROS_INFO("Stereo Camera Initialize");
+
+    // Getting both stereo images and convert into grayscale
+    
+    
+    // create a frame with both images, both orb extractor,  
+    
+    // creating keyframe for initialize
+
+
+    // adding keyframe into atlas map
+
+
+    // creating map point to that keyframe
+
+
+    // insert keyframe into local mapper
+
+
+    // getting pose from current frame
+
+
+
+
+}
+
+
 void FeatureTracking::trackFeatures(cv::Mat& currentImg, 
                                 std::vector<cv::KeyPoint>& distKeypoint)
 {
@@ -58,7 +88,8 @@ void FeatureTracking::trackFeatures(cv::Mat& currentImg,
 
                 cv::line(prevImg, prevFrameInlier[count], currentFrameInlier[count], 
                         cv::Scalar(0, 255, 0), 2);
-                cv::circle(prevImg, currentFrameInlier[count], 3, cv::Scalar(0, 0, 255), -1);
+
+                cv::circle(prevImg, currentFrameInlier[count], 3, cv::Scalar(0, 255, 0), -1);
                 count++;
             }
         }
@@ -69,7 +100,7 @@ void FeatureTracking::trackFeatures(cv::Mat& currentImg,
         
         // selecting good points     
         cv::Mat orbOutputImg;
-        cv::drawKeypoints(prevImg, distKeypoint, prevImg);
+        // cv::drawKeypoints(prevImg, distKeypoint, prevImg, cv::Scalar(0, 255, 0));
 
         cv::imshow("Feature tracking", prevImg);
         cv::waitKey(1);

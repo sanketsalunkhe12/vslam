@@ -12,6 +12,8 @@
 
 #include "opencv2/features2d.hpp"
 
+#include "vslam/keyframe.hpp"
+
 class FeatureTracking
 {
     public:
@@ -19,6 +21,8 @@ class FeatureTracking
 
         void trackFeatures(cv::Mat& currentImg, std::vector<cv::KeyPoint>& distKeypoint);
 
+        void stereoInitialize();
+    
     private:
         int winWidth, winHight, maxPyrLevel, minFeatTrack;
         double distanceThreshold, confidence;
@@ -34,6 +38,10 @@ class FeatureTracking
 
         cv::TermCriteria criteria = cv::TermCriteria((cv::TermCriteria::COUNT) + (cv::TermCriteria::EPS), 
                                     30, 0.01);
+
+        
+        // current and last frame initialization 
+        // of type Frame
         
 };
 
